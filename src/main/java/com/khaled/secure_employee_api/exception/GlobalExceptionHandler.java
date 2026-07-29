@@ -2,7 +2,9 @@ package com.khaled.secure_employee_api.exception;
 
 import com.khaled.secure_employee_api.dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -73,6 +75,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(500)
                 .body(response);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiResponse<Void>> handleBadCredentials(
+            BadCredentialsException exception
+    ) {
+
+        log.warn(
+                "Authentication failed: invalid credentials"
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.<Void>builder()
+                        .success(false)
+                        .message("Invalid username or password")
+                        .data(null)
+                        .build());
     }
 
 }

@@ -1,9 +1,7 @@
 package com.khaled.secure_employee_api.controller;
 
 import com.khaled.secure_employee_api.annotation.RegisterUserApi;
-import com.khaled.secure_employee_api.dto.ApiResponse;
-import com.khaled.secure_employee_api.dto.RegisterRequest;
-import com.khaled.secure_employee_api.dto.RegisterResponse;
+import com.khaled.secure_employee_api.dto.*;
 import com.khaled.secure_employee_api.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +34,24 @@ public class AuthController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
+                .body(response);
+
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest loginRequest) {
+
+        LoginResponse loginResponse= authService.login(loginRequest);
+
+        ApiResponse<LoginResponse> response =
+                ApiResponse.<LoginResponse>builder()
+                        .success(true)
+                        .message("User logged in successfully")
+                        .data(loginResponse)
+                        .build();
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
                 .body(response);
 
     }
