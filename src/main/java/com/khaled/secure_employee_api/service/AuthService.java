@@ -1,5 +1,7 @@
 package com.khaled.secure_employee_api.service;
 
+import com.khaled.secure_employee_api.dto.LoginRequest;
+import com.khaled.secure_employee_api.dto.LoginResponse;
 import com.khaled.secure_employee_api.dto.RegisterRequest;
 import com.khaled.secure_employee_api.dto.RegisterResponse;
 import com.khaled.secure_employee_api.exception.UserAlreadyExistsException;
@@ -7,6 +9,9 @@ import com.khaled.secure_employee_api.user.entity.AppUser;
 import com.khaled.secure_employee_api.user.repository.AppUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +25,8 @@ public class AuthService {
     private  final AppUserRepository appUserRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final AuthenticationManager authenticationManager;
 
     @Transactional
     public RegisterResponse register(RegisterRequest request) {
@@ -72,6 +79,32 @@ public class AuthService {
                 savedUser.getId(),
                 savedUser.getUsername(),
                 savedUser.getEmail()
+        );
+    }
+
+    public LoginResponse login(LoginRequest request) {
+        log.info(
+                "User login attempt for username: {}",
+                request.username()
+        );
+
+        Authentication authentication =
+                authenticationManager
+                        .authenticate(
+                                new UsernamePasswordAuthenticationToken(
+                                request.username(),
+                                request.password()
+                )
+        );
+
+        log.info(
+                "User logged in successfully with username: {}",
+                request.username()
+        );
+
+        return new LoginResponse(
+                "dummy-jwt-token",
+                request.username()
         );
     }
 
