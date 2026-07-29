@@ -1,0 +1,6 @@
+logging:
+  level:
+    root: WARN
+
+    com.khaled.secure_employee_api: INFO
+
