@@ -1,0 +1,13 @@
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+logging:
+  level:
+    root: INFO
+
+    com.khaled.secure_employee_api: INFO
+
+    org.springframework.security: WARN

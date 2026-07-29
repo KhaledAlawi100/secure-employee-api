@@ -19,3 +19,21 @@ spring:
 
   flyway:
     enabled: true
+
+springdoc:
+  api-docs:
+    enabled: true
+
+  swagger-ui:
+    enabled: true
+
+
+logging:
+  level:
+    root: INFO
+
+    com.khaled.secure_employee_api: DEBUG
+
+    org.springframework.security: DEBUG
+
+    org.hibernate.SQL: DEBUG
