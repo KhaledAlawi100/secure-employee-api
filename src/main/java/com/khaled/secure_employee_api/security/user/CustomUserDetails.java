@@ -1,4 +1,4 @@
-package com.khaled.secure_employee_api.security;
+package com.khaled.secure_employee_api.security.user;
 
 import com.khaled.secure_employee_api.user.entity.AppUser;
 import lombok.RequiredArgsConstructor;
