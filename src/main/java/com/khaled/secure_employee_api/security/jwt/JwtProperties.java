@@ -1,4 +1,4 @@
-package com.khaled.secure_employee_api.config;
+package com.khaled.secure_employee_api.security.jwt;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
