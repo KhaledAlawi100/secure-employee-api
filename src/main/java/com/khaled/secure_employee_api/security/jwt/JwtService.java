@@ -1,6 +1,5 @@
 package com.khaled.secure_employee_api.security.jwt;
 
-import com.khaled.secure_employee_api.config.JwtProperties;
 import com.khaled.secure_employee_api.exception.ExpiredJwtTokenException;
 import com.khaled.secure_employee_api.exception.InvalidJwtException;
 import io.jsonwebtoken.*;
@@ -64,12 +63,19 @@ public class JwtService {
                 .compact();
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails){
-        String username = extractUsername(token);
 
-        return (username.equals(userDetails.getUsername())
-                 && !isTokenExpired(token));
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+
+        Claims claims = extractAllClaims(token);
+
+        String username = claims.getSubject();
+
+        Date expiration = claims.getExpiration();
+
+        return username.equals(userDetails.getUsername())
+                && !isExpired(claims);
     }
+
     public String extractUsername(String token){
 
         return extractClaim(token, Claims::getSubject);
@@ -79,9 +85,11 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    public  boolean isTokenExpired(String token){
-        return extractExpiration(token).before(new Date());
+    private boolean isExpired(Claims claims) {
+        return claims.getExpiration().before(new Date());
     }
+
+
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver){
          Claims claims = extractAllClaims(token);
@@ -146,6 +154,7 @@ public class JwtService {
 
 
     private String getSubject(UserDetails userDetails) {
+
         return userDetails.getUsername();
     }
 
