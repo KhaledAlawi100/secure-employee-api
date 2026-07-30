@@ -5,6 +5,8 @@ import com.khaled.secure_employee_api.dto.LoginResponse;
 import com.khaled.secure_employee_api.dto.RegisterRequest;
 import com.khaled.secure_employee_api.dto.RegisterResponse;
 import com.khaled.secure_employee_api.exception.UserAlreadyExistsException;
+import com.khaled.secure_employee_api.security.jwt.JwtService;
+import com.khaled.secure_employee_api.security.user.CustomUserDetails;
 import com.khaled.secure_employee_api.user.entity.AppUser;
 import com.khaled.secure_employee_api.user.repository.AppUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     private final AuthenticationManager authenticationManager;
+
+    private final JwtService jwtService;
 
     @Transactional
     public RegisterResponse register(RegisterRequest request) {
@@ -97,14 +101,19 @@ public class AuthService {
                 )
         );
 
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        String accessToken = jwtService.generateToken(userDetails);
         log.info(
                 "User logged in successfully with username: {}",
                 request.username()
         );
 
+
+
         return new LoginResponse(
-                "dummy-jwt-token",
-                request.username()
+                accessToken,
+                jwtService.getAccessTokenExpirationInSeconds()
         );
     }
 
