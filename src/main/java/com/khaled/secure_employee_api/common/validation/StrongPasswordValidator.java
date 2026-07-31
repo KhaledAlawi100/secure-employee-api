@@ -1,4 +1,4 @@
-package com.khaled.secure_employee_api.validation;
+package com.khaled.secure_employee_api.common.validation;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

@@ -1,6 +1,6 @@
-package com.khaled.secure_employee_api.exception;
+package com.khaled.secure_employee_api.common.exception;
 
-import com.khaled.secure_employee_api.dto.ApiResponse;
+import com.khaled.secure_employee_api.common.dto.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

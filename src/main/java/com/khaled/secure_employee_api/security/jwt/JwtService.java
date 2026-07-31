@@ -1,7 +1,9 @@
 package com.khaled.secure_employee_api.security.jwt;
 
-import com.khaled.secure_employee_api.exception.ExpiredJwtTokenException;
-import com.khaled.secure_employee_api.exception.InvalidJwtException;
+import com.khaled.secure_employee_api.common.exception.ExpiredJwtTokenException;
+import com.khaled.secure_employee_api.common.exception.InvalidJwtException;
+import com.khaled.secure_employee_api.security.user.CustomUserDetails;
+import com.khaled.secure_employee_api.user.entity.AppUser;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
@@ -13,21 +15,17 @@ import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Date;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-
-import java.util.Collections;
-
 
 @Service
 @RequiredArgsConstructor
 public class JwtService {
 
     private final JwtProperties jwtProperties;
-
 
     public String generateToken(UserDetails userDetails) {
 
@@ -37,6 +35,12 @@ public class JwtService {
         );
     }
 
+    public String generateAccessToken(AppUser appUser) {
+
+        return generateToken(
+                new CustomUserDetails(appUser)
+        );
+    }
 
     public String generateToken(
             Map<String, Object> extraClaims,
@@ -51,8 +55,6 @@ public class JwtService {
             UserDetails userDetails
     ) {
 
-        Instant now = Instant.now();
-
         return Jwts.builder()
                 .claims(buildClaims(extraClaims))
                 .subject(getSubject(userDetails))
@@ -63,56 +65,58 @@ public class JwtService {
                 .compact();
     }
 
-
     public boolean isTokenValid(String token, UserDetails userDetails) {
 
         Claims claims = extractAllClaims(token);
 
         String username = claims.getSubject();
 
-        Date expiration = claims.getExpiration();
-
         return username.equals(userDetails.getUsername())
                 && !isExpired(claims);
     }
 
-    public String extractUsername(String token){
+    public String extractUsername(String token) {
 
         return extractClaim(token, Claims::getSubject);
     }
 
-    public Date extractExpiration(String token){
+    public Date extractExpiration(String token) {
+
         return extractClaim(token, Claims::getExpiration);
     }
 
     private boolean isExpired(Claims claims) {
+
         return claims.getExpiration().before(new Date());
     }
 
+    public <T> T extractClaim(
+            String token,
+            Function<Claims, T> claimsResolver
+    ) {
 
-
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver){
-         Claims claims = extractAllClaims(token);
+        Claims claims = extractAllClaims(token);
 
         return claimsResolver.apply(claims);
     }
-
 
     public long getAccessTokenExpirationInSeconds() {
 
         return getAccessTokenExpiration() / 1000;
     }
 
+    public Instant getAccessTokenExpiresAt() {
 
-
-
-    private SecretKey getSigningKey(){
-
-        byte[] keyBytes = Decoders.BASE64.decode(getSecret());
-        return Keys.hmacShaKeyFor(keyBytes);
+        return Instant.now()
+                .plusMillis(getAccessTokenExpiration());
     }
 
+    private SecretKey getSigningKey() {
 
+        byte[] keyBytes = Decoders.BASE64.decode(getSecret());
+
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
 
     private Claims extractAllClaims(String token) {
 
@@ -139,8 +143,8 @@ public class JwtService {
         }
     }
 
-
     private Date getCurrentDate() {
+
         return new Date();
     }
 
@@ -148,16 +152,14 @@ public class JwtService {
 
         return new Date(
                 System.currentTimeMillis()
-                        +getAccessTokenExpiration()
+                        + getAccessTokenExpiration()
         );
     }
-
 
     private String getSubject(UserDetails userDetails) {
 
         return userDetails.getUsername();
     }
-
 
     private Map<String, Object> buildClaims(
             Map<String, Object> extraClaims
@@ -170,26 +172,18 @@ public class JwtService {
         return claims;
     }
 
-
     private String getIssuer() {
+
         return jwtProperties.getIssuer();
     }
 
     private String getSecret() {
+
         return jwtProperties.getSecret();
     }
 
     private long getAccessTokenExpiration() {
+
         return jwtProperties.getAccessTokenExpiration();
     }
-
-
-
-
-
-
-
-
-
-
 }

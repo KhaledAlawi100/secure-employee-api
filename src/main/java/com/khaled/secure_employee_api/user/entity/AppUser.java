@@ -1,10 +1,13 @@
 package com.khaled.secure_employee_api.user.entity;
 
 import com.khaled.secure_employee_api.role.entity.Role;
+import com.khaled.secure_employee_api.security.refresh.entity.RefreshToken;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -44,6 +47,12 @@ public class AppUser {
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
 
+    @OneToMany(
+            mappedBy = "appUser",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<RefreshToken> refreshTokens = new ArrayList<>();
 
 
 

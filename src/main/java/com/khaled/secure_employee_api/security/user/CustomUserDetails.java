@@ -1,6 +1,7 @@
 package com.khaled.secure_employee_api.security.user;
 
 import com.khaled.secure_employee_api.user.entity.AppUser;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,9 +13,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 @RequiredArgsConstructor
+@Getter
 public class CustomUserDetails implements UserDetails {
 
-    private final AppUser appUser;
+    private final  AppUser appUser;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

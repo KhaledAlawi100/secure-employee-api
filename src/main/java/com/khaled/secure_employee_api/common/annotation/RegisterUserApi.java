@@ -1,4 +1,4 @@
-package com.khaled.secure_employee_api.annotation;
+package com.khaled.secure_employee_api.common.annotation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
