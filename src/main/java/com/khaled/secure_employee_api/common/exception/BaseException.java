@@ -1,4 +1,4 @@
-package com.khaled.secure_employee_api.exception;
+package com.khaled.secure_employee_api.common.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

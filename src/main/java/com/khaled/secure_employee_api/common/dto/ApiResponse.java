@@ -1,4 +1,4 @@
-package com.khaled.secure_employee_api.dto;
+package com.khaled.secure_employee_api.common.dto;
 
 import lombok.Builder;
 
