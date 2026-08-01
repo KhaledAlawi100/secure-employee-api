@@ -1,5 +1,6 @@
 package com.khaled.secure_employee_api.security.auth.service;
 
+import com.khaled.secure_employee_api.common.exception.RoleNotFoundException;
 import com.khaled.secure_employee_api.common.exception.UserAlreadyExistsException;
 import com.khaled.secure_employee_api.security.auth.dto.LoginRequest;
 import com.khaled.secure_employee_api.security.auth.dto.RefreshRequest;
@@ -23,7 +24,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.servlet.http.HttpServletRequest;
+import com.khaled.secure_employee_api.role.entity.Role;
+import com.khaled.secure_employee_api.role.entity.RoleName;
+import com.khaled.secure_employee_api.role.repository.RoleRepository;
 
+
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -43,6 +49,9 @@ public class AuthenticationService {
 
     private final HttpServletRequest httpServletRequest;
 
+    private final RoleRepository roleRepository;
+
+
     @Transactional
     public RegisterResponse register(RegisterRequest request) {
 
@@ -51,32 +60,18 @@ public class AuthenticationService {
                 request.username()
         );
 
-        if (appUserRepository.existsByUsername(request.username())) {
+        validateRegistrationRequest(request);
 
-            throw new UserAlreadyExistsException(
-                    "Username already exists"
-            );
-        }
+        Role userRole = getDefaultUserRole();
 
-        if (appUserRepository.existsByEmail(request.email())) {
-
-            throw new UserAlreadyExistsException(
-                    "Email already exists"
-            );
-        }
-
-        AppUser appUser = AppUser.builder()
-                .username(request.username())
-                .email(request.email())
-                .password(passwordEncoder.encode(request.password()))
-                .enabled(true)
-                .build();
+        AppUser appUser = buildUser(request, userRole);
 
         AppUser savedUser = appUserRepository.save(appUser);
 
         log.info(
-                "User registered successfully: {}",
-                savedUser.getUsername()
+                "User '{}' registered successfully with role '{}'",
+                savedUser.getUsername(),
+                userRole.getName()
         );
 
         return new RegisterResponse(
@@ -201,5 +196,42 @@ public class AuthenticationService {
                 ipAddress,
                 userAgent
         );
+    }
+
+    private void validateRegistrationRequest(RegisterRequest request) {
+
+        if (appUserRepository.existsByUsername(request.username())) {
+            throw new UserAlreadyExistsException(
+                    "Username already exists"
+            );
+        }
+
+        if (appUserRepository.existsByEmail(request.email())) {
+            throw new UserAlreadyExistsException(
+                    "Email already exists"
+            );
+        }
+    }
+
+    private Role getDefaultUserRole() {
+
+        return roleRepository.findByName(RoleName.USER)
+                .orElseThrow(() ->
+                        new RoleNotFoundException(RoleName.USER));
+    }
+
+
+    private AppUser buildUser(
+            RegisterRequest request,
+            Role userRole
+    ) {
+
+        return AppUser.builder()
+                .username(request.username())
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
+                .enabled(true)
+                .roles(Set.of(userRole))
+                .build();
     }
 }
