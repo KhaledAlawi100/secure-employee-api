@@ -22,7 +22,8 @@ public class Role {
     private  Long id;
 
     @Column(nullable = false, unique = true, length = 50)
-    private String name;
+    @Enumerated(EnumType.STRING)
+    private RoleName  name;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
