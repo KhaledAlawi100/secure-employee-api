@@ -1,5 +1,6 @@
 package com.khaled.secure_employee_api.user.entity;
 
+import com.khaled.secure_employee_api.employee.model.Employee;
 import com.khaled.secure_employee_api.role.entity.Role;
 import com.khaled.secure_employee_api.security.refresh.entity.RefreshToken;
 import jakarta.persistence.*;
@@ -53,6 +54,14 @@ public class AppUser {
             orphanRemoval = true
     )
     private List<RefreshToken> refreshTokens = new ArrayList<>();
+
+    @OneToOne(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY,
+            orphanRemoval = true
+    )
+    private Employee employee;
 
 
 

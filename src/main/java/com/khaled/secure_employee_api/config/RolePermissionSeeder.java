@@ -35,35 +35,70 @@ public class RolePermissionSeeder implements CommandLineRunner {
                 .orElseThrow(() ->
                         new IllegalStateException("USER role not found"));
 
-        // ADMIN receives every permission
         Set<Permission> adminPermissions =
-                new HashSet<>(permissionRepository.findAll());
+                buildAdminPermissions();
 
-        // USER receives only EMPLOYEE_READ
-        Permission employeeRead = permissionRepository
-                .findByName(PermissionName.EMPLOYEE_READ)
-                .orElseThrow(() ->
-                        new IllegalStateException("EMPLOYEE_READ permission not found"));
-
-        Set<Permission> userPermissions = new HashSet<>();
-        userPermissions.add(employeeRead);
+        Set<Permission> userPermissions =
+                buildUserPermissions();
 
         boolean changed = false;
 
         if (!adminRole.getPermissions().equals(adminPermissions)) {
+
             adminRole.setPermissions(adminPermissions);
+
+            roleRepository.save(adminRole);
+
             changed = true;
         }
 
         if (!userRole.getPermissions().equals(userPermissions)) {
+
             userRole.setPermissions(userPermissions);
+
+            roleRepository.save(userRole);
+
             changed = true;
         }
 
         if (changed) {
-            log.info("Default role-permission mappings seeded successfully.");
+
+            log.info(
+                    "Default role-permission mappings seeded successfully."
+            );
+
         } else {
-            log.info("Role-permission mappings are already up to date.");
+
+            log.info(
+                    "Role-permission mappings are already up to date."
+            );
         }
     }
+
+    private Set<Permission> buildAdminPermissions() {
+
+        return new HashSet<>(permissionRepository.findAll());
+    }
+
+    private Set<Permission> buildUserPermissions() {
+
+        Set<Permission> permissions = new HashSet<>();
+
+        permissions.add(getPermission(PermissionName.EMPLOYEE_READ));
+        permissions.add(getPermission(PermissionName.DEPARTMENT_READ));
+        permissions.add(getPermission(PermissionName.POSITION_READ));
+
+        return permissions;
+    }
+
+    private Permission getPermission(PermissionName permissionName) {
+
+        return permissionRepository.findByName(permissionName)
+                .orElseThrow(() ->
+                        new IllegalStateException(
+                                permissionName + " permission not found."
+                        )
+                );
+    }
+
 }

@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class SecurityConfig {
 
 
@@ -34,9 +36,9 @@ public class SecurityConfig {
 
                 .sessionManagement(session ->
                         session
-                        .sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS
-                        )
+                                .sessionCreationPolicy(
+                                        SessionCreationPolicy.STATELESS
+                                )
                 )
 
                 .authorizeHttpRequests(auth -> auth
@@ -45,6 +47,9 @@ public class SecurityConfig {
                                 "/api/v1/auth/**"
                         ).permitAll()
 
+                        .requestMatchers("/admin/**")
+                        .hasRole("ADMIN")
+
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -52,8 +57,6 @@ public class SecurityConfig {
                         ).permitAll()
 
                         .anyRequest().authenticated()
-
-
                 )
                 .authenticationProvider(authenticationProvider())
 
