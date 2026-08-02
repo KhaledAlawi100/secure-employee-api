@@ -75,4 +75,9 @@ public class CustomUserDetails implements UserDetails {
     public boolean isEnabled() {
         return appUser.isEnabled();
     }
+
+    public Long getId() {
+
+        return appUser.getId();
+    }
 }
