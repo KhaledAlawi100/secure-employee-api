@@ -1,0 +1,38 @@
+# Git
+.git
+.gitignore
+
+# IntelliJ
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Maven
+target/
+
+# Maven Wrapper Logs
+.mvn/wrapper/maven-wrapper.jar
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Environment files
+.env
+.env.*
+
+# Docker
+docker-compose.override.yml
+
+# Documentation
+README.md
+
+# Temporary
+*.tmp
+*.swp
