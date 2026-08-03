@@ -2,6 +2,9 @@ package com.khaled.secure_employee_api.security.auth.service;
 
 import com.khaled.secure_employee_api.common.exception.RoleNotFoundException;
 import com.khaled.secure_employee_api.common.exception.UserAlreadyExistsException;
+import com.khaled.secure_employee_api.role.entity.Role;
+import com.khaled.secure_employee_api.role.entity.RoleName;
+import com.khaled.secure_employee_api.role.repository.RoleRepository;
 import com.khaled.secure_employee_api.security.auth.dto.LoginRequest;
 import com.khaled.secure_employee_api.security.auth.dto.RefreshRequest;
 import com.khaled.secure_employee_api.security.auth.dto.RegisterRequest;
@@ -14,6 +17,7 @@ import com.khaled.secure_employee_api.security.refresh.service.RefreshTokenServi
 import com.khaled.secure_employee_api.security.user.CustomUserDetails;
 import com.khaled.secure_employee_api.user.entity.AppUser;
 import com.khaled.secure_employee_api.user.repository.AppUserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,12 +26,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import jakarta.servlet.http.HttpServletRequest;
-import com.khaled.secure_employee_api.role.entity.Role;
-import com.khaled.secure_employee_api.role.entity.RoleName;
-import com.khaled.secure_employee_api.role.repository.RoleRepository;
-
 
 import java.util.Set;
 import java.util.UUID;
@@ -50,7 +48,6 @@ public class AuthenticationService {
     private final HttpServletRequest httpServletRequest;
 
     private final RoleRepository roleRepository;
-
 
     @Transactional
     public RegisterResponse register(RegisterRequest request) {
@@ -81,7 +78,6 @@ public class AuthenticationService {
         );
     }
 
-
     public TokenResponse login(LoginRequest request) {
 
         log.info(
@@ -103,7 +99,8 @@ public class AuthenticationService {
         String accessToken =
                 jwtService.generateToken(userDetails);
 
-        RefreshTokenRequestContext context = buildRequestContext();
+        RefreshTokenRequestContext context =
+                buildRequestContext();
 
         RefreshToken refreshToken =
                 refreshTokenService.createRefreshToken(
@@ -126,6 +123,7 @@ public class AuthenticationService {
     }
 
 
+
     @Transactional
     public TokenResponse refreshAuthentication(
             RefreshRequest request
@@ -142,11 +140,11 @@ public class AuthenticationService {
                 refreshToken
         );
 
-
         RefreshToken rotatedRefreshToken =
                 refreshTokenService.rotateRefreshToken(
                         refreshToken
                 );
+
         AppUser appUser =
                 rotatedRefreshToken.getAppUser();
 
@@ -217,9 +215,9 @@ public class AuthenticationService {
 
         return roleRepository.findByName(RoleName.USER)
                 .orElseThrow(() ->
-                        new RoleNotFoundException(RoleName.USER));
+                        new RoleNotFoundException(RoleName.USER)
+                );
     }
-
 
     private AppUser buildUser(
             RegisterRequest request,

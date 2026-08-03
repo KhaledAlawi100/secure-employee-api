@@ -31,12 +31,25 @@ public class AppUser {
     @Column(nullable = false, length = 255 , unique = true)
     private String email;
 
-    @Column(nullable = false, length = 255)
+    @Column(length = 255)
     private String password;
 
     @Column(nullable = false)
     @Builder.Default
     private  boolean enabled=true;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private AuthProvider provider = AuthProvider.LOCAL;
+
+    @Column(unique = true, length = 255)
+    private String providerId;
+
+    @Column(length = 500)
+    private String imageUrl;
+
+
 
 
     @ManyToMany(fetch = FetchType.LAZY)
