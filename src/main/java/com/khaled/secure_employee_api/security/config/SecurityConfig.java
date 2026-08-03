@@ -1,7 +1,9 @@
 package com.khaled.secure_employee_api.security.config;
 
-
 import com.khaled.secure_employee_api.security.jwt.JwtAuthenticationFilter;
+import com.khaled.secure_employee_api.security.oauth2.CustomOAuth2UserService;
+import com.khaled.secure_employee_api.security.oauth2.CustomOidcUserService;
+import com.khaled.secure_employee_api.security.oauth2.OAuth2LoginSuccessHandler;
 import com.khaled.secure_employee_api.security.user.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +15,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -23,33 +24,44 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class SecurityConfig {
 
-
     private final CustomUserDetailsService customUserDetailsService;
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    private final CustomOidcUserService customOidcUserService;
+
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+
+    private final PasswordEncoder passwordEncoder;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)
-            throws Exception  {
+            throws Exception {
+
         http
+
                 .csrf(csrf -> csrf.disable())
 
                 .sessionManagement(session ->
-                        session
-                                .sessionCreationPolicy(
-                                        SessionCreationPolicy.STATELESS
-                                )
+                        session.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS
+                        )
                 )
 
                 .authorizeHttpRequests(auth -> auth
 
+                        // Authentication endpoints
                         .requestMatchers(
                                 "/api/v1/auth/**"
                         ).permitAll()
 
-                        .requestMatchers("/admin/**")
-                        .hasRole("ADMIN")
+                        // OAuth2 endpoints
+                        .requestMatchers(
+                                "/oauth2/**",
+                                "/login/oauth2/**"
+                        ).permitAll()
 
+                        // Swagger
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -58,6 +70,14 @@ public class SecurityConfig {
 
                         .anyRequest().authenticated()
                 )
+
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .oidcUserService(customOidcUserService)
+                        )
+                        .successHandler(oAuth2LoginSuccessHandler)
+                )
+
                 .authenticationProvider(authenticationProvider())
 
                 .addFilterBefore(
@@ -65,14 +85,7 @@ public class SecurityConfig {
                         UsernamePasswordAuthenticationFilter.class
                 );
 
-
         return http.build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-
-        return new BCryptPasswordEncoder();
     }
 
     @Bean
@@ -81,7 +94,7 @@ public class SecurityConfig {
         DaoAuthenticationProvider provider =
                 new DaoAuthenticationProvider(customUserDetailsService);
 
-        provider.setPasswordEncoder(passwordEncoder());
+        provider.setPasswordEncoder(passwordEncoder);
 
         return provider;
     }
@@ -93,5 +106,4 @@ public class SecurityConfig {
 
         return configuration.getAuthenticationManager();
     }
-
 }
