@@ -17,7 +17,6 @@ The project is designed as a learning-focused yet production-ready backend that 
 
 ![OAuth2](https://img.shields.io/badge/OAuth2-Google-yellow)
 
-![License](https://img.shields.io/badge/License-MIT-green)
 
 
 ## Overview
